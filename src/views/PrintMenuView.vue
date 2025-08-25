@@ -101,145 +101,32 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'PrintMenu',
-  data() {
-    console.log('初始化 data()')
-    return {
-      loading: true,
-      menuData: null,
-      shopName: '水果PARTY菜單',
-      shopAddress: '台北市信義區水果街123號',
-      hoursText: '營業時間：10:00-22:00 | 電話：(02)1234-5678',
-      categoryClasses: ['traditional', 'fresh-fruit', 'new-items'],
-      itemClasses: ['traditional-item', 'fresh-fruit-item', 'new-item'],
-    }
-  },
-  computed: {
-    categories() {
-      return this.menuData?.categories || []
-    },
-    menuItems() {
-      return this.menuData?.menuItems || []
-    },
-    addOns() {
-      return this.menuData?.addOns || []
-    },
-  },
-  methods: {
-    fetchData() {
-      console.log('fetchData() 開始執行')
-      try {
-        // 嘗試從 localStorage 獲取數據
-        const storedData = localStorage.getItem('menuData')
-        console.log('localStorage 數據:', storedData ? '存在' : '不存在')
+<script setup>
+import { ref, onMounted } from 'vue'
+import { API_CONFIG } from '@/config/api.js'
 
-        if (storedData) {
-          console.log('開始解析 JSON 數據')
-          this.menuData = JSON.parse(storedData)
-          console.log('解析後的菜單數據:', this.menuData)
+const menuData = ref(null)
+const loading = ref(null)
+const error = ref(null)
 
-          console.log('開始更新店鋪信息')
-          this.updateShopInfo()
-          this.loading = false
+const fetchMenuData = async () => {
+  console.log('fetchMenuData() 開始執行')
+  this.loading = true
+  this.error = null
 
-          // 自動打印
-          // setTimeout(() => {
-          //   this.printMenu()
-          // }, 1000)
-
-          console.log('數據加載完成，頁面應該顯示菜單內容')
-        } else {
-          // 如果沒有數據，顯示錯誤信息
-          this.loading = false
-          alert('沒有找到菜單數據，請從 Google Sheet 中選擇"打印菜單"選項')
-        }
-      } catch (error) {
-        console.error('獲取數據失敗:', error)
-        this.loading = false
-        alert('載入失敗，請重試')
-      }
-    },
-    updateShopInfo() {
-      console.log('updateShopInfo() 開始執行')
-      if (this.menuData?.shopData) {
-        const shopData = this.menuData.shopData
-        this.shopName = shopData.shop_name || '水果PARTY菜單'
-        this.shopAddress = shopData.address || '台北市信義區水果街123號'
-
-        // 設置營業時間和電話
-        let hours = '營業時間：'
-        if (shopData.hours) {
-          hours += shopData.hours
-        } else {
-          hours += '10:00-22:00'
-        }
-
-        hours += ' | 電話：'
-        if (shopData.phone) {
-          hours += shopData.phone
-        } else {
-          hours += '(02)1234-5678'
-        }
-
-        this.hoursText = hours
-      }
-    },
-    getCategoryClass(index) {
-      return this.categoryClasses[index % this.categoryClasses.length]
-    },
-    getItemClass(index) {
-      return this.itemClasses[index % this.itemClasses.length]
-    },
-    getCategoryItems(categoryId) {
-      return this.menuItems.filter((item) => item.category_id === categoryId)
-    },
-    getCategoryLeftItems(categoryId) {
-      const items = this.getCategoryItems(categoryId)
-      const halfLength = Math.ceil(items.length / 2)
-      return items.slice(0, halfLength)
-    },
-    getCategoryRightItems(categoryId) {
-      const items = this.getCategoryItems(categoryId)
-      const halfLength = Math.ceil(items.length / 2)
-      return items.slice(halfLength)
-    },
-    isHotItem(item) {
-      const tags = item.tags || ''
-      return tags.includes('熱門') || tags.includes('popular') || tags.includes('hot')
-    },
-    isNewItem(item) {
-      const tags = item.tags || ''
-      return tags.includes('新品') || tags.includes('new')
-    },
-    printMenu() {
-      console.log('準備打印菜單')
-      window.print()
-      console.log('打印對話框已顯示')
-    },
-    goBack() {
-      console.log('返回上一頁')
-      // 如果是從其他頁面導航過來的，返回上一頁
-      if (window.history.length > 1) {
-        this.$router.back()
-      } else {
-        // 否則導航到首頁或其他頁面
-        this.$router.push('/')
-      }
-    },
-  },
-  created() {
-    console.log('組件 created 生命週期鉤子觸發')
-  },
-  mounted() {
-    this.fetchData()
-  },
-  // Vue 3 中使用 beforeUnmount 替代 beforeDestroy
-  beforeUnmount() {
-    console.log('組件 beforeUnmount 生命週期鉤子觸發')
-  },
+  try {
+    menuData.value = await MenuService.getMenuData()
+  } catch (error) {
+    console.error('獲取菜單失敗:', error)
+    this.error = '無法載入菜單,請稍後再試'
+  } finally {
+    this.loading = false
+  }
 }
+
+onMounted(() => {
+  fetchMenuData()
+})
 </script>
 
 <style scoped>
