@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>水果PARTY菜單 - 打印版</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 12mm;
+      }
+
+      body {
+        font-family: 'Noto Sans TC', Arial, sans-serif;
+        background: #f8f4e8;
+        margin: 0;
+        padding: 0;
+        color: #333;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .menu-container {
+        max-width: 210mm;
+        margin: 0 auto;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        padding: 18px;
+        min-height: 297mm;
+        box-sizing: border-box;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 20px;
+        border-bottom: 2px dashed #ffb6c1;
+        padding-bottom: 12px;
+      }
+
+      h1 {
+        color: #ff6b6b;
+        font-size: 2.2em;
+        margin: 0;
+      }
+
+      .table-number {
+        font-size: 1.2em;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .menu-section {
+        margin-bottom: 25px;
+        page-break-inside: avoid;
+      }
+
+      .section-title {
+        background: #ff6b6b;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 18px;
+        display: inline-block;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+        font-weight: bold;
+      }
+
+      .traditional {
+        background: #4ecdc4;
+      }
+
+      .fresh-fruit {
+        background: #ff9f1c;
+      }
+
+      .new-items {
+        background: #9c27b0;
+      }
+
+      /* 每個系列分為左右兩欄 */
+      .section-content {
+        display: flex;
+        gap: 18px;
+      }
+
+      .section-column {
+        flex: 1;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px;
+        background: #fafafa;
+      }
+
+      .column-header {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 10px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        padding: 0 10px;
+        color: #495057;
+        font-size: 1em;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 6px;
+      }
+
+      .column-header .price-header {
+        text-align: right;
+        min-width: 45px;
+      }
+
+      .column-header .quantity-header {
+        text-align: center;
+        width: 40px;
+      }
+
+      .menu-item {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 10px;
+        align-items: center;
+        padding: 8px 10px;
+        border-radius: 6px;
+        transition: all 0.2s;
+        position: relative;
+        margin-bottom: 4px;
+      }
+
+      .menu-item:hover {
+        background: #f0f0f0;
+      }
+
+      .traditional-item {
+        border-left: 3px solid #4ecdc4;
+      }
+
+      .fresh-fruit-item {
+        border-left: 3px solid #ff9f1c;
+      }
+
+      .new-item {
+        border-left: 3px solid #9c27b0;
+      }
+
+      .item-name {
+        font-weight: 500;
+        position: relative;
+        font-size: 1em;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .item-price {
+        color: #e63946;
+        font-weight: bold;
+        text-align: right;
+        min-width: 45px;
+        font-size: 1em;
+      }
+
+      .item-quantity {
+        width: 40px;
+        text-align: center;
+        font-size: 0.9em;
+      }
+
+      .hot-tag {
+        background: #e63946;
+        color: white;
+        font-size: 0.7em;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-weight: bold;
+        white-space: nowrap;
+      }
+
+      .notes {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 18px;
+        border-left: 3px solid #6c757d;
+        font-size: 0.95em;
+      }
+
+      .notes h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #495057;
+        font-size: 1.1em;
+      }
+
+      .add-on-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .add-on-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.9em;
+      }
+
+      .add-on-item input {
+        margin: 0;
+        transform: scale(1.2);
+      }
+
+      .notes textarea {
+        width: 100%;
+        height: 45px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 8px;
+        margin-top: 6px;
+        font-size: 0.9em;
+        resize: vertical;
+      }
+
+      .notes p {
+        margin: 5px 0;
+        font-size: 0.9em;
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 25px;
+        color: #6c757d;
+        font-size: 0.85em;
+      }
+
+      .loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      @media print {
+        body {
+          background: white;
+          font-size: 12px;
+        }
+
+        .menu-container {
+          box-shadow: none;
+          border-radius: 0;
+          padding: 12px;
+          margin: 0;
+          max-width: 100%;
+        }
+
+        .menu-item:hover {
+          background: transparent;
+        }
+
+        .no-print {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="loading" class="loading">
+      <div>載入中...</div>
+    </div>
+
+    <div id="menu-content" style="display: none">
+      <div class="menu-container">
+        <div class="header">
+          <h1 id="shop-name">🍧 水果PARTY菜單 🍦</h1>
+          <div class="table-number">桌號: ____</div>
+        </div>
+
+        <div id="categories-container">
+          <!-- 這裡將動態填充分類和菜單項目 -->
+        </div>
+
+        <!-- 加購選項 -->
+        <div class="notes">
+          <h3>加點選項</h3>
+          <div id="addons-container" class="add-on-container">
+            <!-- 這裡將動態填充加購項目 -->
+          </div>
+
+          <h3>特殊需求</h3>
+          <p>• 甜度調整：正常 / 少糖 / 半糖 / 微糖 / 無糖</p>
+          <p>• 冰塊：正常冰 / 少冰 / 去冰 / 溫熱</p>
+          <textarea placeholder="其他備註事項..."></textarea>
+        </div>
+
+        <div class="footer">
+          <p id="shop-hours">營業時間：10:00-22:00 | 電話：(02)1234-5678</p>
+          <p id="shop-address">地址：台北市信義區水果街123號</p>
+        </div>
+      </div>
+
+      <div class="no-print" style="text-align: center; margin: 20px">
+        <button
+          onclick="window.print()"
+          style="
+            padding: 10px 20px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+          "
+        >
+          打印菜單
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // 從 localStorage 獲取數據
+      function fetchData() {
+        try {
+          // 嘗試從 localStorage 獲取數據
+          const storedData = localStorage.getItem('menuData')
+
+          if (storedData) {
+            const data = JSON.parse(storedData)
+            renderMenu(data)
+          } else {
+            // 如果沒有數據，顯示錯誤信息
+            document.getElementById('loading').innerHTML =
+              '<div>沒有找到菜單數據，請從 Google Sheet 中選擇"打印菜單"選項</div>'
+          }
+        } catch (error) {
+          console.error('獲取數據失敗:', error)
+          document.getElementById('loading').innerHTML = '<div>載入失敗，請重試</div>'
+        }
+      }
+
+      // 渲染菜單
+      function renderMenu(data) {
+        // 隱藏載入指示器
+        document.getElementById('loading').style.display = 'none'
+        // 顯示菜單內容
+        document.getElementById('menu-content').style.display = 'block'
+
+        // 設置商店信息
+        if (data.shopData) {
+          document.getElementById('shop-name').textContent =
+            `🍧 ${data.shopData.shop_name || '水果PARTY菜單'} 🍦`
+
+          // 設置營業時間和電話
+          let hoursText = '營業時間：'
+          if (data.shopData.hours) {
+            hoursText += data.shopData.hours
+          } else {
+            hoursText += '10:00-22:00'
+          }
+
+          hoursText += ' | 電話：'
+          if (data.shopData.phone) {
+            hoursText += data.shopData.phone
+          } else {
+            hoursText += '(02)1234-5678'
+          }
+
+          document.getElementById('shop-hours').textContent = hoursText
+
+          // 設置地址
+          document.getElementById('shop-address').textContent =
+            `地址：${data.shopData.address || '台北市信義區水果街123號'}`
+        }
+
+        // 渲染分類和菜單項目
+        const categoriesContainer = document.getElementById('categories-container')
+        categoriesContainer.innerHTML = ''
+
+        // 定義樣式類名
+        const categoryClasses = ['traditional', 'fresh-fruit', 'new-items']
+        const itemClasses = ['traditional-item', 'fresh-fruit-item', 'new-item']
+
+        if (data.categories && data.categories.length > 0) {
+          data.categories.forEach((category, index) => {
+            // 獲取該分類下的菜單項目
+            const categoryItems = data.menuItems.filter((item) => item.category_id === category.id)
+
+            if (categoryItems.length === 0) return
+
+            // 將項目分為左右兩欄
+            const halfLength = Math.ceil(categoryItems.length / 2)
+            const leftItems = categoryItems.slice(0, halfLength)
+            const rightItems = categoryItems.slice(halfLength)
+
+            // 創建分類區域
+            const sectionDiv = document.createElement('div')
+            sectionDiv.className = 'menu-section'
+
+            // 分類標題
+            const titleDiv = document.createElement('div')
+            titleDiv.className = `section-title ${categoryClasses[index % categoryClasses.length]}`
+            titleDiv.textContent = category.c_name || category.name
+            sectionDiv.appendChild(titleDiv)
+
+            // 分類內容（左右兩欄）
+            const contentDiv = document.createElement('div')
+            contentDiv.className = 'section-content'
+
+            // 左欄
+            contentDiv.appendChild(
+              createColumnWithItems(leftItems, itemClasses[index % itemClasses.length]),
+            )
+
+            // 右欄
+            contentDiv.appendChild(
+              createColumnWithItems(rightItems, itemClasses[index % itemClasses.length]),
+            )
+
+            sectionDiv.appendChild(contentDiv)
+            categoriesContainer.appendChild(sectionDiv)
+          })
+        }
+
+        // 渲染加購項目
+        const addonsContainer = document.getElementById('addons-container')
+        addonsContainer.innerHTML = ''
+
+        if (data.addOns && data.addOns.length > 0) {
+          data.addOns.forEach((addon) => {
+            const addonDiv = document.createElement('div')
+            addonDiv.className = 'add-on-item'
+
+            const checkbox = document.createElement('input')
+            checkbox.type = 'checkbox'
+
+            const label = document.createElement('label')
+            label.innerHTML = `${addon.name} <span style="color: #e63946;">+$${addon.price}</span>`
+
+            addonDiv.appendChild(checkbox)
+            addonDiv.appendChild(label)
+
+            addonsContainer.appendChild(addonDiv)
+          })
+        }
+
+        // 自動打開打印對話框
+        setTimeout(() => {
+          window.print()
+        }, 1000)
+      }
+
+      // 創建一欄菜單項目
+      function createColumnWithItems(items, itemClass) {
+        const column = document.createElement('div')
+        column.className = 'section-column'
+
+        // 欄標題
+        const header = document.createElement('div')
+        header.className = 'column-header'
+        header.innerHTML = `
+          <div>品項</div>
+          <div class="price-header">價格</div>
+          <div class="quantity-header">數量</div>
+        `
+        column.appendChild(header)
+
+        // 菜單項目
+        items.forEach((item) => {
+          const itemDiv = document.createElement('div')
+          itemDiv.className = `menu-item ${itemClass}`
+
+          // 項目名稱
+          const nameDiv = document.createElement('div')
+          nameDiv.className = 'item-name'
+          nameDiv.textContent = item.item_name
+
+          // 檢查標籤
+          const tags = item.tags || ''
+
+          // 如果標籤中包含"熱門"或"popular"
+          if (tags.includes('熱門') || tags.includes('popular') || tags.includes('hot')) {
+            const hotTag = document.createElement('span')
+            hotTag.className = 'hot-tag'
+            hotTag.textContent = '熱門'
+            nameDiv.appendChild(hotTag)
+          }
+
+          // 如果標籤中包含"新品"或"new"
+          if (tags.includes('新品') || tags.includes('new')) {
+            const newTag = document.createElement('span')
+            newTag.className = 'hot-tag'
+            newTag.textContent = '新品'
+            nameDiv.appendChild(newTag)
+          }
+
+          // 價格
+          const priceDiv = document.createElement('div')
+          priceDiv.className = 'item-price'
+          priceDiv.textContent = `$${item.price}`
+
+          // 數量
+          const quantityDiv = document.createElement('div')
+          quantityDiv.className = 'item-quantity'
+          quantityDiv.textContent = '____'
+
+          itemDiv.appendChild(nameDiv)
+          itemDiv.appendChild(priceDiv)
+          itemDiv.appendChild(quantityDiv)
+
+          column.appendChild(itemDiv)
+        })
+
+        return column
+      }
+
+      // 頁面載入時獲取數據
+      document.addEventListener('DOMContentLoaded', fetchData)
+    </script>
+  </body>
+</html>

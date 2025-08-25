@@ -1,0 +1,526 @@
+<template>
+  <div class="print-container">
+    <div id="loading" class="loading" v-if="loading">
+      <div>載入中...</div>
+    </div>
+
+    <div id="menu-content" v-if="!loading">
+      <div class="menu-container">
+        <div class="header">
+          <h1 id="shop-name">🍧 {{ shopName }} 🍦</h1>
+          <div class="table-number">桌號: ____</div>
+        </div>
+
+        <div id="categories-container">
+          <!-- 分類和菜單項目 -->
+          <div v-for="(category, index) in categories" :key="category.id" class="menu-section">
+            <div :class="['section-title', getCategoryClass(index)]">
+              {{ category.c_name || category.name }}
+            </div>
+
+            <div class="section-content">
+              <!-- 左欄 -->
+              <div class="section-column">
+                <div class="column-header">
+                  <div>品項</div>
+                  <div class="price-header">價格</div>
+                  <div class="quantity-header">數量</div>
+                </div>
+
+                <div
+                  v-for="item in getCategoryLeftItems(category.id)"
+                  :key="item.id"
+                  :class="['menu-item', getItemClass(index)]"
+                >
+                  <div class="item-name">
+                    {{ item.item_name }}
+                    <span v-if="isHotItem(item)" class="hot-tag">熱門</span>
+                    <span v-if="isNewItem(item)" class="hot-tag">新品</span>
+                  </div>
+                  <div class="item-price">${{ item.price }}</div>
+                  <div class="item-quantity">____</div>
+                </div>
+              </div>
+
+              <!-- 右欄 -->
+              <div class="section-column">
+                <div class="column-header">
+                  <div>品項</div>
+                  <div class="price-header">價格</div>
+                  <div class="quantity-header">數量</div>
+                </div>
+
+                <div
+                  v-for="item in getCategoryRightItems(category.id)"
+                  :key="item.id"
+                  :class="['menu-item', getItemClass(index)]"
+                >
+                  <div class="item-name">
+                    {{ item.item_name }}
+                    <span v-if="isHotItem(item)" class="hot-tag">熱門</span>
+                    <span v-if="isNewItem(item)" class="hot-tag">新品</span>
+                  </div>
+                  <div class="item-price">${{ item.price }}</div>
+                  <div class="item-quantity">____</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 加購選項 -->
+        <div class="notes">
+          <h3>加點選項</h3>
+          <div class="add-on-container">
+            <div v-for="addon in addOns" :key="addon.id" class="add-on-item">
+              <input type="checkbox" />
+              <label
+                >{{ addon.name }} <span style="color: #e63946">+${{ addon.price }}</span></label
+              >
+            </div>
+          </div>
+
+          <h3>特殊需求</h3>
+          <p>• 甜度調整：正常 / 少糖 / 半糖 / 微糖 / 無糖</p>
+          <p>• 冰塊：正常冰 / 少冰 / 去冰 / 溫熱</p>
+          <textarea placeholder="其他備註事項..."></textarea>
+        </div>
+
+        <div class="footer">
+          <p id="shop-hours">{{ hoursText }}</p>
+          <p id="shop-address">地址：{{ shopAddress }}</p>
+        </div>
+      </div>
+
+      <!-- 只在非打印模式下顯示 -->
+      <div class="no-print" style="text-align: center; margin: 20px">
+        <button @click="printMenu" class="print-button">打印菜單</button>
+        <button @click="goBack" class="back-button">返回</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'PrintMenu',
+  data() {
+    console.log('初始化 data()')
+    return {
+      loading: true,
+      menuData: null,
+      shopName: '水果PARTY菜單',
+      shopAddress: '台北市信義區水果街123號',
+      hoursText: '營業時間：10:00-22:00 | 電話：(02)1234-5678',
+      categoryClasses: ['traditional', 'fresh-fruit', 'new-items'],
+      itemClasses: ['traditional-item', 'fresh-fruit-item', 'new-item'],
+    }
+  },
+  computed: {
+    categories() {
+      return this.menuData?.categories || []
+    },
+    menuItems() {
+      return this.menuData?.menuItems || []
+    },
+    addOns() {
+      return this.menuData?.addOns || []
+    },
+  },
+  methods: {
+    fetchData() {
+      console.log('fetchData() 開始執行')
+      try {
+        // 嘗試從 localStorage 獲取數據
+        const storedData = localStorage.getItem('menuData')
+        console.log('localStorage 數據:', storedData ? '存在' : '不存在')
+
+        if (storedData) {
+          console.log('開始解析 JSON 數據')
+          this.menuData = JSON.parse(storedData)
+          console.log('解析後的菜單數據:', this.menuData)
+
+          console.log('開始更新店鋪信息')
+          this.updateShopInfo()
+          this.loading = false
+
+          // 自動打印
+          // setTimeout(() => {
+          //   this.printMenu()
+          // }, 1000)
+
+          console.log('數據加載完成，頁面應該顯示菜單內容')
+        } else {
+          // 如果沒有數據，顯示錯誤信息
+          this.loading = false
+          alert('沒有找到菜單數據，請從 Google Sheet 中選擇"打印菜單"選項')
+        }
+      } catch (error) {
+        console.error('獲取數據失敗:', error)
+        this.loading = false
+        alert('載入失敗，請重試')
+      }
+    },
+    updateShopInfo() {
+      console.log('updateShopInfo() 開始執行')
+      if (this.menuData?.shopData) {
+        const shopData = this.menuData.shopData
+        this.shopName = shopData.shop_name || '水果PARTY菜單'
+        this.shopAddress = shopData.address || '台北市信義區水果街123號'
+
+        // 設置營業時間和電話
+        let hours = '營業時間：'
+        if (shopData.hours) {
+          hours += shopData.hours
+        } else {
+          hours += '10:00-22:00'
+        }
+
+        hours += ' | 電話：'
+        if (shopData.phone) {
+          hours += shopData.phone
+        } else {
+          hours += '(02)1234-5678'
+        }
+
+        this.hoursText = hours
+      }
+    },
+    getCategoryClass(index) {
+      return this.categoryClasses[index % this.categoryClasses.length]
+    },
+    getItemClass(index) {
+      return this.itemClasses[index % this.itemClasses.length]
+    },
+    getCategoryItems(categoryId) {
+      return this.menuItems.filter((item) => item.category_id === categoryId)
+    },
+    getCategoryLeftItems(categoryId) {
+      const items = this.getCategoryItems(categoryId)
+      const halfLength = Math.ceil(items.length / 2)
+      return items.slice(0, halfLength)
+    },
+    getCategoryRightItems(categoryId) {
+      const items = this.getCategoryItems(categoryId)
+      const halfLength = Math.ceil(items.length / 2)
+      return items.slice(halfLength)
+    },
+    isHotItem(item) {
+      const tags = item.tags || ''
+      return tags.includes('熱門') || tags.includes('popular') || tags.includes('hot')
+    },
+    isNewItem(item) {
+      const tags = item.tags || ''
+      return tags.includes('新品') || tags.includes('new')
+    },
+    printMenu() {
+      console.log('準備打印菜單')
+      window.print()
+      console.log('打印對話框已顯示')
+    },
+    goBack() {
+      console.log('返回上一頁')
+      // 如果是從其他頁面導航過來的，返回上一頁
+      if (window.history.length > 1) {
+        this.$router.back()
+      } else {
+        // 否則導航到首頁或其他頁面
+        this.$router.push('/')
+      }
+    },
+  },
+  created() {
+    console.log('組件 created 生命週期鉤子觸發')
+  },
+  mounted() {
+    this.fetchData()
+  },
+  // Vue 3 中使用 beforeUnmount 替代 beforeDestroy
+  beforeUnmount() {
+    console.log('組件 beforeUnmount 生命週期鉤子觸發')
+  },
+}
+</script>
+
+<style scoped>
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+.print-container {
+  font-family: 'Noto Sans TC', Arial, sans-serif;
+  background: #f8f4e8;
+  margin: 0;
+  padding: 0;
+  color: #333;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.menu-container {
+  max-width: 210mm;
+  margin: 0 auto;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  padding: 18px;
+  min-height: 297mm;
+  box-sizing: border-box;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+  border-bottom: 2px dashed #ffb6c1;
+  padding-bottom: 12px;
+}
+
+h1 {
+  color: #ff6b6b;
+  font-size: 2.2em;
+  margin: 0;
+}
+
+.table-number {
+  font-size: 1.2em;
+  color: #666;
+  margin-top: 10px;
+}
+
+.menu-section {
+  margin-bottom: 25px;
+  page-break-inside: avoid;
+}
+
+.section-title {
+  background: #ff6b6b;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 18px;
+  display: inline-block;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.traditional {
+  background: #4ecdc4;
+}
+
+.fresh-fruit {
+  background: #ff9f1c;
+}
+
+.new-items {
+  background: #9c27b0;
+}
+
+/* 每個系列分為左右兩欄 */
+.section-content {
+  display: flex;
+  gap: 18px;
+}
+
+.section-column {
+  flex: 1;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fafafa;
+}
+
+.column-header {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding: 0 10px;
+  color: #495057;
+  font-size: 1em;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 6px;
+}
+
+.column-header .price-header {
+  text-align: right;
+  min-width: 45px;
+}
+
+.column-header .quantity-header {
+  text-align: center;
+  width: 40px;
+}
+
+.menu-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  position: relative;
+  margin-bottom: 4px;
+}
+
+.menu-item:hover {
+  background: #f0f0f0;
+}
+
+.traditional-item {
+  border-left: 3px solid #4ecdc4;
+}
+
+.fresh-fruit-item {
+  border-left: 3px solid #ff9f1c;
+}
+
+.new-item {
+  border-left: 3px solid #9c27b0;
+}
+
+.item-name {
+  font-weight: 500;
+  position: relative;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.item-price {
+  color: #e63946;
+  font-weight: bold;
+  text-align: right;
+  min-width: 45px;
+  font-size: 1em;
+}
+
+.item-quantity {
+  width: 40px;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.hot-tag {
+  background: #e63946;
+  color: white;
+  font-size: 0.7em;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.notes {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 18px;
+  border-left: 3px solid #6c757d;
+  font-size: 0.95em;
+}
+
+.notes h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #495057;
+  font-size: 1.1em;
+}
+
+.add-on-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.add-on-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9em;
+}
+
+.add-on-item input {
+  margin: 0;
+  transform: scale(1.2);
+}
+
+.notes textarea {
+  width: 100%;
+  height: 45px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+  margin-top: 6px;
+  font-size: 0.9em;
+  resize: vertical;
+}
+
+.notes p {
+  margin: 5px 0;
+  font-size: 0.9em;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 25px;
+  color: #6c757d;
+  font-size: 0.85em;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.print-button {
+  padding: 10px 20px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.back-button {
+  padding: 10px 20px;
+  background: #607d8b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+@media print {
+  .print-container {
+    background: white;
+    font-size: 12px;
+  }
+
+  .menu-container {
+    box-shadow: none;
+    border-radius: 0;
+    padding: 12px;
+    margin: 0;
+    max-width: 100%;
+  }
+
+  .menu-item:hover {
+    background: transparent;
+  }
+
+  .no-print {
+    display: none;
+  }
+}
+</style>
