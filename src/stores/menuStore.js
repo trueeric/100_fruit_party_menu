@@ -62,7 +62,7 @@ export const useMenuStore = defineStore('menu', {
       this.error = null
 
       try {
-        const data = await MenuService.fetchDataInParts()
+        const data = await MenuService.getMenuData()
         this.shopData = data.shopData || {}
         this.categories = data.categories || []
         this.menuItems = data.menuItems || []
