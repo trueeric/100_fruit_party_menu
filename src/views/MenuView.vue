@@ -173,7 +173,8 @@ function addToCart(item) {
 
 // 獲取菜單數據
 async function fetchData() {
-  await menuStore.fetchDataInParts()
+  // await menuStore.fetchDataInParts()
+  await menuStore.fetchAllData()
 }
 
 // 組件掛載時獲取數據
