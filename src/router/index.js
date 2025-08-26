@@ -12,8 +12,7 @@ const routes = [
   {
     path: '/print-menu',
     name: 'PrintMenu',
-    // component: () => import('@/views/PrintMenuView.vue'),
-    component: () => PrintMenuView.vue,
+    component: PrintMenuView,
   },
 ]
 

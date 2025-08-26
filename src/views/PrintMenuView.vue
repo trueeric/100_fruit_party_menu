@@ -103,29 +103,136 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { API_CONFIG } from '@/config/api.js'
+// 導入 MenuService
+import { MenuService } from '@/services/menuService.js'
+import { useMenuStore } from '@/stores/menuStore'
 
-const menuData = ref(null)
-const loading = ref(null)
+// 初始化 store
+const menuStore = useMenuStore()
+
+// 本地狀態
+const loading = ref(true)
 const error = ref(null)
+const dataSource = ref('store') // 標記數據來源: 'store', 'localStorage', 'service'
 
-const fetchMenuData = async () => {
-  console.log('fetchMenuData() 開始執行')
-  this.loading = true
-  this.error = null
+// 從 store 獲取數據的計算屬性
+const categories = computed(() => menuStore.categories)
+const menuItems = computed(() => menuStore.menuItems)
+const addOns = computed(() => menuStore.addOns)
+
+// 店鋪信息
+const shopName = computed(() => menuStore.shopData.shop_name || '水果PARTY')
+const shopAddress = computed(() => menuStore.shopData.address || '台北市信義區水果街123號')
+const hoursText = computed(() => {
+  const hours = menuStore.shopData.hours || '10:00-22:00'
+  const phone = menuStore.shopData.phone || '(02)1234-5678'
+  return `營業時間：${hours} | 電話：${phone}`
+})
+
+// 獲取分類左側項目
+const getCategoryLeftItems = (categoryId) => {
+  const items = menuItems.value.filter((item) => item.category_id === categoryId)
+  const halfLength = Math.ceil(items.length / 2)
+  return items.slice(0, halfLength)
+}
+
+// 獲取分類右側項目
+const getCategoryRightItems = (categoryId) => {
+  const items = menuItems.value.filter((item) => item.category_id === categoryId)
+  const halfLength = Math.ceil(items.length / 2)
+  return items.slice(halfLength)
+}
+
+// 獲取分類樣式
+const getCategoryClass = (index) => {
+  const classes = ['traditional', 'fresh-fruit', 'new-items']
+  return classes[index % classes.length]
+}
+// 檢查是否為熱門項目
+const isHotItem = (item) => {
+  return item.tags && item.tags.includes('熱門')
+}
+
+// 檢查是否為新品
+const isNewItem = (item) => {
+  return item.tags && item.tags.includes('新品')
+}
+
+// 打印菜單
+const printMenu = () => {
+  window.print()
+}
+
+// 返回
+const goBack = () => {
+  window.history.back()
+}
+
+// 從 localStorage 獲取數據
+const fetchFromLocalStorage = () => {
+  try {
+    console.log('嘗試從 localStorage 獲取數據')
+    const storedData = localStorage.getItem('menuData')
+
+    if (storedData) {
+      const parsedData = JSON.parse(storedData)
+      console.log('成功從 localStorage 解析數據')
+
+      // 更新 store 數據
+      menuStore.shopData = parsedData.shopData || {}
+      menuStore.categories = parsedData.categories || []
+      menuStore.menuItems = parsedData.menuItems || []
+      menuStore.addOns = parsedData.addOns || []
+      menuStore.lastFetchTime = Date.now()
+
+      dataSource.value = 'localStorage'
+      return true
+    } else {
+      console.warn('localStorage 中沒有找到 menuData')
+      return false
+    }
+  } catch (err) {
+    console.error('解析 localStorage 數據時出錯:', err)
+    return false
+  }
+}
+
+// 檢查 store 中是否已有數據
+const hasStoreData = () => {
+  return menuStore.categories.length > 0 && menuStore.menuItems.length > 0
+}
+
+// 初始化數據
+const initData = async () => {
+  loading.value = true
+  error.value = null
 
   try {
-    menuData.value = await MenuService.getMenuData()
-  } catch (error) {
-    console.error('獲取菜單失敗:', error)
-    this.error = '無法載入菜單,請稍後再試'
+    // 策略 1: 先檢查 store 中是否已有數據
+    if (hasStoreData()) {
+      console.log('使用 store 中的現有數據')
+      dataSource.value = 'store'
+    }
+    // 策略 2: 如果 store 中沒有數據，嘗試從 localStorage 獲取
+    else if (fetchFromLocalStorage()) {
+      console.log('從 localStorage 獲取數據成功')
+    }
+    // 策略 3: 如果前兩種方法都失敗，從服務獲取新數據
+    else {
+      console.log('從服務獲取新數據')
+      await menuStore.fetchAllData()
+      dataSource.value = 'service'
+    }
+  } catch (err) {
+    console.error('初始化數據時出錯:', err)
+    error.value = '載入菜單數據失敗，請重試'
   } finally {
-    this.loading = false
+    loading.value = false
   }
 }
 
 onMounted(() => {
-  fetchMenuData()
+  initData()
 })
 </script>
 

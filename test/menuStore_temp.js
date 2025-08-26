@@ -38,6 +38,7 @@ export const useMenuStore = defineStore('menu', {
     cartItemCount: (state) => {
       return state.cart.length
     },
+
     // 添加一個 getter 來檢查是否有數據
     hasData: (state) => {
       return state.categories.length > 0 && state.menuItems.length > 0
@@ -58,6 +59,7 @@ export const useMenuStore = defineStore('menu', {
         console.log('使用快取資料')
         return
       }
+
       this.loading = true
       this.error = null
 
@@ -86,6 +88,7 @@ export const useMenuStore = defineStore('menu', {
       }
     },
 
+    // 其他方法保持不變...
     setCategory(categoryId) {
       this.currentCategory = categoryId
     },
