@@ -257,7 +257,7 @@ function printMenu() {
   var jsonData = JSON.stringify(data)
 
   // 使用您的 Vue 應用的 URL，而不是 Google Apps Script URL
-  var vueAppUrl = 'https://menu-print-app.netlify.app/#/print-menu' // 替換為您的 Vue 應用的實際 URL
+  var vueAppUrl = 'https://zingy-tarsier-a27ddd.netlify.app/#/print-menu' // 替換為您的 Vue 應用的實際 URL
 
   // 記錄將要使用的 URL
   console.log('打印菜單使用的 URL: ' + vueAppUrl)
