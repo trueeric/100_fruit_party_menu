@@ -2,7 +2,44 @@ const CONFIG = {
   TITLE: '水果PARTY 菜單',
 }
 
-// 添加 doPost 函數處理 POST 請求
+// 修改 doGet 函數，使用正確的方法設置 CORS 頭
+function doGet(e) {
+  const action = e.parameter.action || 'getAllData'
+  const callback = e.parameter.callback || ''
+
+  try {
+    let responseData
+
+    if (action === 'getAllData') {
+      responseData = getAllData()
+    } else {
+      responseData = { error: '未知操作' }
+    }
+
+    // 如果提供了回調函數名稱，則使用 JSONP 格式返回
+    if (callback) {
+      return ContentService.createTextOutput(
+        callback + '(' + JSON.stringify(responseData) + ')',
+      ).setMimeType(ContentService.MimeType.JAVASCRIPT)
+    } else {
+      // 否則返回普通 JSON
+      return ContentService.createTextOutput(JSON.stringify(responseData)).setMimeType(
+        ContentService.MimeType.JSON,
+      )
+    }
+  } catch (error) {
+    const errorOutput = ContentService.createTextOutput(
+      JSON.stringify({
+        error: error.toString(),
+        message: '處理請求時發生錯誤',
+      }),
+    ).setMimeType(ContentService.MimeType.JSON)
+
+    return errorOutput
+  }
+}
+
+// 修改 doPost 函數，使用正確的方法設置 CORS 頭
 function doPost(e) {
   // 解析請求體
   let requestData
@@ -12,10 +49,6 @@ function doPost(e) {
     requestData = {}
   }
 
-  // 創建輸出
-  const output = ContentService.createTextOutput()
-
-  // 處理請求
   try {
     let responseData
 
@@ -30,60 +63,22 @@ function doPost(e) {
       responseData = getAllData()
     }
 
-    output.setContent(JSON.stringify(responseData))
+    // 使用 ContentService 並正確設置 MIME 類型
+    const output = ContentService.createTextOutput(JSON.stringify(responseData)).setMimeType(
+      ContentService.MimeType.JSON,
+    )
+
+    return output
   } catch (error) {
-    output.setContent(
+    const errorOutput = ContentService.createTextOutput(
       JSON.stringify({
         error: error.toString(),
         message: '處理請求時發生錯誤',
       }),
-    )
+    ).setMimeType(ContentService.MimeType.JSON)
+
+    return errorOutput
   }
-
-  // 設置必要的 CORS 頭
-  output.setMimeType(ContentService.MimeType.JSON)
-  output.setHeader('Access-Control-Allow-Origin', 'https://zingy-tarsier-a27ddd.netlify.app')
-  output.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-  output.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-
-  return output
-}
-
-// 修改 doGet 函數，也設置 CORS 頭
-function doGet(e) {
-  // 處理請求參數
-  const action = e.parameter.action || 'getAllData'
-
-  // 創建輸出
-  let output = ContentService.createTextOutput()
-
-  // 處理不同的操作
-  try {
-    let responseData
-
-    if (action === 'getAllData') {
-      responseData = getAllData()
-    } else {
-      responseData = { error: '未知操作' }
-    }
-
-    output.setContent(JSON.stringify(responseData))
-  } catch (error) {
-    output.setContent(
-      JSON.stringify({
-        error: error.toString(),
-        message: '處理請求時發生錯誤',
-      }),
-    )
-  }
-
-  // 設置 CORS 頭和 MIME 類型
-  output.setMimeType(ContentService.MimeType.JSON)
-  output.setHeader('Access-Control-Allow-Origin', '*') // 允許任何來源，或指定 'https://zingy-tarsier-a27ddd.netlify.app'
-  output.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-  output.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-
-  return output
 }
 
 function includes(filename) {

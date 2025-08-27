@@ -5,24 +5,21 @@ import { API_CONFIG } from '@/config/api'
 
 export class MenuService {
   static async getMenuData() {
-    return new Promise((resolve, reject) => {
-      const callbackName = 'jsonpCallback_' + Math.round(Math.random() * 1000000)
-      window[callbackName] = (data) => {
-        delete window[callbackName]
-        document.head.removeChild(script)
-        resolve(data)
+    try {
+      // 使用 GET 方法而不是 POST
+      const url = `${API_CONFIG.GOOGLE_SCRIPT_URL}?action=getAllData`
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const script = document.createElement('script')
-      script.src = `${API_CONFIG.GOOGLE_SCRIPT_URL}?action=getAllData&callback=${callbackName}`
-      script.onerror = (err) => {
-        delete window[callbackName]
-        document.head.removeChild(script)
-        reject(new Error('JSONP 請求失敗'))
-      }
-
-      document.head.appendChild(script)
-    })
+      const data = await response.json()
+      return data.menu || data
+    } catch (error) {
+      console.error('MenuService.getMenu 失敗:', error)
+      throw error
+    }
   }
 
   static async updateMenu(menuData) {
