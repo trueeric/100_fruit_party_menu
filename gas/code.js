@@ -51,13 +51,23 @@ function doPost(e) {
 
 // 修改 doGet 函數，也設置 CORS 頭
 function doGet(e) {
-  // 創建輸出
-  const output = ContentService.createTextOutput()
+  // 處理請求參數
+  const action = e.parameter.action || 'getAllData'
 
-  // 處理請求
+  // 創建輸出
+  let output = ContentService.createTextOutput()
+
+  // 處理不同的操作
   try {
-    const data = getAllData()
-    output.setContent(JSON.stringify(data))
+    let responseData
+
+    if (action === 'getAllData') {
+      responseData = getAllData()
+    } else {
+      responseData = { error: '未知操作' }
+    }
+
+    output.setContent(JSON.stringify(responseData))
   } catch (error) {
     output.setContent(
       JSON.stringify({
@@ -67,9 +77,9 @@ function doGet(e) {
     )
   }
 
-  // 設置必要的 CORS 頭
+  // 設置 CORS 頭和 MIME 類型
   output.setMimeType(ContentService.MimeType.JSON)
-  output.setHeader('Access-Control-Allow-Origin', 'https://zingy-tarsier-a27ddd.netlify.app')
+  output.setHeader('Access-Control-Allow-Origin', '*') // 允許任何來源，或指定 'https://zingy-tarsier-a27ddd.netlify.app'
   output.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
   output.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
