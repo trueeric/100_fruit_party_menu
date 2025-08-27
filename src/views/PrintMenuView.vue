@@ -103,8 +103,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-// 導入 MenuService
-import { MenuService } from '@/services/menuService.js'
 import { useMenuStore } from '@/stores/menuStore'
 
 // 初始化 store

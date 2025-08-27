@@ -1,11 +1,11 @@
 <template>
   <v-app>
     <v-main>
-      <MenuView />
+      <router-view />
     </v-main>
   </v-app>
 </template>
 
 <script setup>
-import MenuView from '@/views/MenuView.vue'
+// import MenuView from '@/views/MenuView.vue'
 </script>
