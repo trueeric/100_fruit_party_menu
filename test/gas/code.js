@@ -2,78 +2,23 @@ const CONFIG = {
   TITLE: '水果PARTY 菜單',
 }
 
-// 添加 doPost 函數處理 POST 請求
-function doPost(e) {
-  // 解析請求體
-  let requestData
-  try {
-    requestData = JSON.parse(e.postData.contents)
-  } catch (error) {
-    requestData = {}
-  }
-
-  // 創建輸出
-  const output = ContentService.createTextOutput()
-
-  // 處理請求
-  try {
-    let responseData
-
-    // 根據 action 參數執行不同操作
-    if (requestData.action === 'getAllData') {
-      responseData = getAllData()
-    } else if (requestData.action === 'updateMenu') {
-      // 實現更新菜單的邏輯（如果需要）
-      responseData = { success: true, message: 'Menu updated' }
-    } else {
-      // 默認返回所有數據
-      responseData = getAllData()
-    }
-
-    output.setContent(JSON.stringify(responseData))
-  } catch (error) {
-    output.setContent(
-      JSON.stringify({
-        error: error.toString(),
-        message: '處理請求時發生錯誤',
-      }),
-    )
-  }
-
-  // 設置必要的 CORS 頭
-  output.setMimeType(ContentService.MimeType.JSON)
-  output.setHeader('Access-Control-Allow-Origin', 'https://zingy-tarsier-a27ddd.netlify.app')
-  output.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-  output.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-
-  return output
-}
-
-// 修改 doGet 函數，也設置 CORS 頭
 function doGet(e) {
-  // 創建輸出
-  const output = ContentService.createTextOutput()
-
-  // 處理請求
-  try {
-    const data = getAllData()
-    output.setContent(JSON.stringify(data))
-  } catch (error) {
-    output.setContent(
-      JSON.stringify({
-        error: error.toString(),
-        message: '處理請求時發生錯誤',
-      }),
-    )
+  // 檢查是否是調試請求
+  if (e && e.parameter && e.parameter.debug === 'true') {
+    try {
+      const data = getAllData()
+      return HtmlService.createHtmlOutput('<pre>' + JSON.stringify(data, null, 2) + '</pre>')
+    } catch (error) {
+      return HtmlService.createHtmlOutput('<h1>Error</h1><pre>' + error.toString() + '</pre>')
+    }
   }
 
-  // 設置必要的 CORS 頭
-  output.setMimeType(ContentService.MimeType.JSON)
-  output.setHeader('Access-Control-Allow-Origin', 'https://zingy-tarsier-a27ddd.netlify.app')
-  output.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-  output.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-
-  return output
+  // 正常的應用邏輯
+  return HtmlService.createTemplateFromFile('index.html')
+    .evaluate()
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1.0')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+    .setTitle(CONFIG.TITLE)
 }
 
 function includes(filename) {

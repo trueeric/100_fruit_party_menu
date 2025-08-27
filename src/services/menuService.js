@@ -6,15 +6,9 @@ import { API_CONFIG } from '@/config/api'
 export class MenuService {
   static async getMenuData() {
     try {
-      const response = await fetch(API_CONFIG.GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'getAllData',
-        }),
-      })
+      // 使用 GET 方法而不是 POST
+      const url = `${API_CONFIG.GOOGLE_SCRIPT_URL}?action=getAllData`
+      const response = await fetch(url)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
