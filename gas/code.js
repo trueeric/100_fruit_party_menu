@@ -220,6 +220,11 @@ function getActiveCategories() {
         color: cat.color,
         layout: cat.layout,
         sort: parseInt(cat.sort_order) || 0,
+        is_active:
+          Boolean(cat.is_active) &&
+          cat.is_active !== 'false' &&
+          cat.is_active !== 'FALSE' &&
+          cat.is_active !== '0',
       }))
   } catch (error) {
     console.error('讀取分類資料時發生錯誤:', error)
@@ -263,6 +268,11 @@ function getActiveMenuItems() {
         category_id: item.category_id,
         category_sort: item.category_sort || 0,
         sort: parseInt(item.sort_order) || 0,
+        is_active:
+          Boolean(item.is_active) &&
+          item.is_active !== 'false' &&
+          item.is_active !== 'FALSE' &&
+          item.is_active !== '0',
       }))
   } catch (error) {
     console.error('讀取菜單項目時發生錯誤:', error)
@@ -283,6 +293,11 @@ function getAddOns() {
         id: parseInt(addon.id),
         name: addon.name,
         price: parseFloat(addon.price),
+        is_active:
+          Boolean(addon.is_active) &&
+          addon.is_active !== 'false' &&
+          addon.is_active !== 'FALSE' &&
+          addon.is_active !== '0',
       }))
   } catch (error) {
     console.error('讀取加購項目時發生錯誤:', error)

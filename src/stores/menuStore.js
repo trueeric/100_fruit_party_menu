@@ -38,6 +38,32 @@ export const useMenuStore = defineStore('menu', {
     cartItemCount: (state) => {
       return state.cart.length
     },
+
+    // 只返回有效分類
+    activeCategories: (state) => {
+      return state.categories.filter(
+        (category) => category.is_active === 'TRUE' || category.is_active === true,
+      )
+    },
+
+    // 只返回有效菜單項目
+    activeMenuItems: (state) => {
+      return state.menuItems.filter((item) => item.is_active === 'TRUE' || item.is_active === true)
+    },
+
+    // 只返回有效加購選項
+    activeAddOns: (state) => {
+      return state.addOns.filter((addon) => addon.is_active === 'TRUE' || addon.is_active === true)
+    },
+
+    // 新增：根據活躍分類過濾的菜單項目
+    filteredActiveMenuItems: (state, getters) => {
+      if (state.currentCategory === 'all') {
+        return getters.activeMenuItems
+      }
+      return getters.activeMenuItems.filter((item) => item.category_id === state.currentCategory)
+    },
+
     // 添加一個 getter 來檢查是否有數據
     hasData: (state) => {
       return state.categories.length > 0 && state.menuItems.length > 0

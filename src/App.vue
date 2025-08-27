@@ -6,6 +6,4 @@
   </v-app>
 </template>
 
-<script setup>
-// import MenuView from '@/views/MenuView.vue'
-</script>
+<script setup></script>

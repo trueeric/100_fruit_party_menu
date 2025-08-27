@@ -7,8 +7,10 @@
     <div id="menu-content" v-if="!loading">
       <div class="menu-container">
         <div class="header">
-          <h1 id="shop-name">🍧 {{ shopName }} 🍦</h1>
-          <div class="table-number">桌號: ____</div>
+          <div class="header-content">
+            <h1 id="shop-name">🍧 {{ shopName }} 🍦</h1>
+            <h2 class="table-number">桌號: ____</h2>
+          </div>
         </div>
 
         <div id="categories-container">
@@ -108,6 +110,12 @@ import { useMenuStore } from '@/stores/menuStore'
 // 初始化 store
 const menuStore = useMenuStore()
 
+// 獲取項目樣式
+const getItemClass = (index) => {
+  const classes = ['traditional-item', 'fresh-fruit-item', 'new-item']
+  return classes[index % classes.length]
+}
+
 // 本地狀態
 const loading = ref(true)
 const error = ref(null)
@@ -115,8 +123,8 @@ const dataSource = ref('store') // 標記數據來源: 'store', 'localStorage', 
 
 // 從 store 獲取數據的計算屬性
 const categories = computed(() => menuStore.categories)
-const menuItems = computed(() => menuStore.menuItems)
-const addOns = computed(() => menuStore.addOns)
+const menuItems = computed(() => menuStore.activeMenuItems)
+const addOns = computed(() => menuStore.activeAddOns)
 
 // 店鋪信息
 const shopName = computed(() => menuStore.shopData.shop_name || '水果PARTY')
@@ -230,7 +238,18 @@ const initData = async () => {
 }
 
 onMounted(() => {
-  initData()
+  // initData()
+  initData().then(() => {
+    // 檢查數據格式
+    if (menuStore.categories.length > 0) {
+      console.log('Category is_active 類型:', typeof menuStore.categories[0].is_active)
+      console.log('Category 示例:', menuStore.categories[0])
+    }
+    if (menuStore.menuItems.length > 0) {
+      console.log('MenuItem is_active 類型:', typeof menuStore.menuItems[0].is_active)
+      console.log('MenuItem 示例:', menuStore.menuItems[0])
+    }
+  })
 })
 </script>
 
@@ -238,6 +257,8 @@ onMounted(() => {
 @page {
   size: A4;
   margin: 12mm;
+  margin-top: 0mm; /* 為頁首留出空間 */
+  margin-bottom: 0mm; /* 為頁尾留出空間 */
 }
 
 .print-container {
@@ -247,7 +268,7 @@ onMounted(() => {
   padding: 0;
   color: #333;
   font-size: 13px;
-  line-height: 1.4;
+  line-height: 1.2;
 }
 
 .menu-container {
@@ -262,10 +283,25 @@ onMounted(() => {
 }
 
 .header {
-  text-align: center;
+  margin-bottom: 2rem;
+  /* text-align: center; */
   margin-bottom: 20px;
   border-bottom: 2px dashed #ffb6c1;
   padding-bottom: 12px;
+}
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* 小螢幕時換行 */
+  gap: 1rem;
+}
+
+#shop-name {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #2c3e50;
+  flex: 1; /* 佔據剩餘空間 */
 }
 
 h1 {
@@ -281,18 +317,18 @@ h1 {
 }
 
 .menu-section {
-  margin-bottom: 25px;
+  margin-bottom: 15px;
   page-break-inside: avoid;
 }
 
 .section-title {
   background: #ff6b6b;
   color: white;
-  padding: 8px 15px;
+  padding: 4px 12px;
   border-radius: 18px;
   display: inline-block;
-  margin-bottom: 15px;
-  font-size: 1.2em;
+  margin-bottom: 3px;
+  font-size: 1.1em;
   font-weight: bold;
 }
 
@@ -311,15 +347,15 @@ h1 {
 /* 每個系列分為左右兩欄 */
 .section-content {
   display: flex;
-  gap: 18px;
+  gap: 10px;
 }
 
 .section-column {
   flex: 1;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  padding: 12px;
-  background: #fafafa;
+  padding: 8px;
+  background: white;
 }
 
 .column-header {
@@ -350,11 +386,11 @@ h1 {
   grid-template-columns: 1fr auto auto;
   gap: 10px;
   align-items: center;
-  padding: 8px 10px;
+  padding: 4px 10px;
   border-radius: 6px;
   transition: all 0.2s;
   position: relative;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .menu-item:hover {
@@ -376,7 +412,7 @@ h1 {
 .item-name {
   font-weight: 500;
   position: relative;
-  font-size: 1em;
+  font-size: 1.2em;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -407,7 +443,7 @@ h1 {
 }
 
 .notes {
-  background: #f8f9fa;
+  background: white;
   padding: 15px;
   border-radius: 8px;
   margin-top: 18px;
@@ -494,6 +530,18 @@ h1 {
 }
 
 @media print {
+  /* 確保背景色在打印時顯示 */
+  /* .section-title,
+  .traditional,
+  .fresh-fruit,
+  .new-items {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    background-color: inherit !important;
+  } */
+
+  /* 其他打印樣式保持不變 */
   .print-container {
     background: white;
     font-size: 12px;
