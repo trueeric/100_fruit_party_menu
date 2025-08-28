@@ -27,6 +27,7 @@
                   <div>品項</div>
                   <div class="price-header">價格</div>
                   <div class="quantity-header">數量</div>
+                  <div class="addon-header">加點</div>
                 </div>
 
                 <div
@@ -41,6 +42,7 @@
                   </div>
                   <div class="item-price">${{ item.price }}</div>
                   <div class="item-quantity">____</div>
+                  <div class="item-addon">____</div>
                 </div>
               </div>
 
@@ -50,6 +52,7 @@
                   <div>品項</div>
                   <div class="price-header">價格</div>
                   <div class="quantity-header">數量</div>
+                  <div class="addon-header">加點</div>
                 </div>
 
                 <div
@@ -64,6 +67,7 @@
                   </div>
                   <div class="item-price">${{ item.price }}</div>
                   <div class="item-quantity">____</div>
+                  <div class="item-addon">____</div>
                 </div>
               </div>
             </div>
@@ -75,16 +79,17 @@
           <h3>加點選項</h3>
           <div class="add-on-container">
             <div v-for="addon in addOns" :key="addon.id" class="add-on-item">
-              <input type="checkbox" />
+              <!-- <input type="checkbox" /> -->
               <label
-                >{{ addon.name }} <span style="color: #e63946">+${{ addon.price }}</span></label
+                >{{ addon.id }}.{{ addon.name }}
+                <span style="color: #e63946">+${{ addon.price }}</span></label
               >
             </div>
           </div>
 
-          <h3>特殊需求</h3>
+          <!-- <h3>特殊需求</h3>
           <p>• 甜度調整：正常 / 少糖 / 半糖 / 微糖 / 無糖</p>
-          <p>• 冰塊：正常冰 / 少冰 / 去冰 / 溫熱</p>
+          <p>• 冰塊：正常冰 / 少冰 / 去冰 / 溫熱</p> -->
           <textarea placeholder="其他備註事項..."></textarea>
         </div>
 
@@ -123,7 +128,7 @@ const dataSource = ref('store') // 標記數據來源: 'store', 'localStorage', 
 
 // 從 store 獲取數據的計算屬性
 const categories = computed(() => menuStore.categories)
-const menuItems = computed(() => menuStore.activeMenuItems)
+const menuItems = computed(() => menuStore.menuItems)
 const addOns = computed(() => menuStore.activeAddOns)
 
 // 店鋪信息
@@ -241,9 +246,9 @@ onMounted(() => {
   // initData()
   initData().then(() => {
     // 檢查數據格式
-    if (menuStore.categories.length > 0) {
-      console.log('Category is_active 類型:', typeof menuStore.categories[0].is_active)
-      console.log('Category 示例:', menuStore.categories[0])
+    if (menuStore.activeCategories.length > 0) {
+      console.log('Category is_active 類型:', typeof menuStore.activeCategories[0].is_active)
+      console.log('Category 示例:', menuStore.activeCategories[0])
     }
     if (menuStore.menuItems.length > 0) {
       console.log('MenuItem is_active 類型:', typeof menuStore.menuItems[0].is_active)
@@ -360,7 +365,8 @@ h1 {
 
 .column-header {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  /* grid-template-columns: 1fr auto auto auto; */
+  grid-template-columns: 1fr 50px 40px 40px;
   gap: 10px;
   font-weight: bold;
   margin-bottom: 10px;
@@ -376,14 +382,15 @@ h1 {
   min-width: 45px;
 }
 
-.column-header .quantity-header {
+.column-header .quantity-header,
+.column-header .addon-header {
   text-align: center;
   width: 40px;
 }
 
 .menu-item {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr 50px 40px 40px;
   gap: 10px;
   align-items: center;
   padding: 4px 10px;
@@ -432,6 +439,12 @@ h1 {
   font-size: 0.9em;
 }
 
+.item-addon {
+  width: 40px;
+  text-align: center;
+  font-size: 0.9em;
+}
+
 .hot-tag {
   background: #e63946;
   color: white;
@@ -455,7 +468,7 @@ h1 {
   margin-top: 0;
   margin-bottom: 10px;
   color: #495057;
-  font-size: 1.1em;
+  font-size: 1.2em;
 }
 
 .add-on-container {
@@ -463,6 +476,7 @@ h1 {
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 12px;
+  font-size: 1.2em;
 }
 
 .add-on-item {

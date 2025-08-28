@@ -42,18 +42,23 @@ export const useMenuStore = defineStore('menu', {
     // 只返回有效分類
     activeCategories: (state) => {
       return state.categories.filter(
-        (category) => category.is_active === 'TRUE' || category.is_active === true,
+        (category) =>
+          category.is_active === 'TRUE' || category.is_active === true || category.is_active === 1,
       )
     },
 
     // 只返回有效菜單項目
     activeMenuItems: (state) => {
-      return state.menuItems.filter((item) => item.is_active === 'TRUE' || item.is_active === true)
+      return state.menuItems.filter(
+        (item) => item.is_active === 'TRUE' || item.is_active === true || item.is_active === 1,
+      )
     },
 
     // 只返回有效加購選項
     activeAddOns: (state) => {
-      return state.addOns.filter((addon) => addon.is_active === 'TRUE' || addon.is_active === true)
+      return state.addOns.filter(
+        (addon) => addon.is_active === 'TRUE' || addon.is_active === true || addon.is_active === 1,
+      )
     },
 
     // 新增：根據活躍分類過濾的菜單項目
