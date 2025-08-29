@@ -8,8 +8,8 @@
       <div class="menu-container">
         <div class="header">
           <div class="header-content">
-            <h1 id="shop-name">🍧 {{ shopName }} 🍦</h1>
-            <h2 class="table-number">桌號: ____</h2>
+            <h1 id="shop-name">🍧 {{ shopName }}點餐單 🍦</h1>
+            <h2 class="table-number">桌號: ______</h2>
           </div>
         </div>
 
@@ -74,23 +74,35 @@
           </div>
         </div>
 
-        <!-- 加購選項 -->
+        <!-- 加購選項和備註 -->
         <div class="notes">
-          <h3>加點選項</h3>
-          <div class="add-on-container">
-            <div v-for="addon in addOns" :key="addon.id" class="add-on-item">
-              <!-- <input type="checkbox" /> -->
-              <label
-                >{{ addon.id }}.{{ addon.name }}
-                <span style="color: #e63946">+${{ addon.price }}</span></label
-              >
-            </div>
+          <div class="notes-content">
+            <!-- 左側：加點選項標題 -->
+            <div class="notes-title">加點選項</div>
+
+            <!-- 右側：備註標題 -->
+            <div class="notes-title">其他備註事項</div>
           </div>
 
-          <!-- <h3>特殊需求</h3>
-          <p>• 甜度調整：正常 / 少糖 / 半糖 / 微糖 / 無糖</p>
-          <p>• 冰塊：正常冰 / 少冰 / 去冰 / 溫熱</p> -->
-          <textarea placeholder="其他備註事項..."></textarea>
+          <div class="notes-content">
+            <!-- 左側：加點選項（水平排列） -->
+            <div class="notes-column">
+              <div class="add-on-container">
+                <span v-for="(addon, index) in addOns" :key="addon.id" class="add-on-item">
+                  {{ index > 0 ? ' ' : '' }}{{ addon.id }}.{{ addon.name }}
+                  <span class="addon-price">+${{ addon.price }}</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- 右側：備註文本區域 -->
+            <div class="notes-column">
+              <textarea
+                class="remarks-textarea"
+                placeholder="請在此填寫特殊需求、甜度、冰塊等要求..."
+              ></textarea>
+            </div>
+          </div>
         </div>
 
         <div class="footer">
@@ -259,41 +271,51 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* ==================== 打印設定 ==================== */
 @page {
   size: A4;
-  margin: 12mm;
+  margin: 5mm;
   margin-top: 0mm; /* 為頁首留出空間 */
   margin-bottom: 0mm; /* 為頁尾留出空間 */
 }
 
+/* ==================== 基礎容器 ==================== */
 .print-container {
   font-family: 'Noto Sans TC', Arial, sans-serif;
   background: #f8f4e8;
   margin: 0;
   padding: 0;
   color: #333;
-  font-size: 13px;
-  line-height: 1.2;
+  font-size: 14px;
+  line-height: 1.3;
 }
 
 .menu-container {
-  max-width: 210mm;
+  max-width: 100%;
   margin: 0 auto;
   background: white;
   border-radius: 10px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-  padding: 18px;
+  padding: 15px;
   min-height: 297mm;
   box-sizing: border-box;
 }
 
-.header {
-  margin-bottom: 2rem;
-  /* text-align: center; */
-  margin-bottom: 20px;
-  border-bottom: 2px dashed #ffb6c1;
-  padding-bottom: 12px;
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
 }
+
+/* ==================== 頁首區域 ==================== */
+.header {
+  margin-bottom: 18px;
+  border-bottom: 2px dashed #ffb6c1;
+  padding-bottom: 10px;
+}
+
 .header-content {
   display: flex;
   justify-content: space-between;
@@ -304,39 +326,41 @@ onMounted(() => {
 
 #shop-name {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 2rem;
   color: #2c3e50;
   flex: 1; /* 佔據剩餘空間 */
 }
 
 h1 {
   color: #ff6b6b;
-  font-size: 2.2em;
+  font-size: 2.4em;
   margin: 0;
 }
 
 .table-number {
-  font-size: 1.2em;
+  font-size: 1.3em;
   color: #666;
   margin-top: 10px;
 }
 
+/* ==================== 菜單分類 ==================== */
 .menu-section {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   page-break-inside: avoid;
 }
 
 .section-title {
   background: #ff6b6b;
   color: white;
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 18px;
   display: inline-block;
   margin-bottom: 3px;
-  font-size: 1.1em;
+  font-size: 1.4em;
   font-weight: bold;
 }
 
+/* 分類主題色彩 */
 .traditional {
   background: #4ecdc4;
 }
@@ -349,7 +373,7 @@ h1 {
   background: #9c27b0;
 }
 
-/* 每個系列分為左右兩欄 */
+/* ==================== 菜單內容區域 ==================== */
 .section-content {
   display: flex;
   gap: 10px;
@@ -359,41 +383,42 @@ h1 {
   flex: 1;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  padding: 8px;
+  padding: 10px;
   background: white;
 }
 
+/* ==================== 表格標題列 ==================== */
 .column-header {
   display: grid;
-  /* grid-template-columns: 1fr auto auto auto; */
-  grid-template-columns: 1fr 50px 40px 40px;
-  gap: 10px;
+  grid-template-columns: 1fr 55px 45px 45px;
+  gap: 8px;
   font-weight: bold;
-  margin-bottom: 10px;
-  padding: 0 10px;
+  margin-bottom: 8px;
+  padding: 0 8px;
   color: #495057;
-  font-size: 1em;
+  font-size: 1.1em;
   border-bottom: 1px solid #ddd;
   padding-bottom: 6px;
 }
 
 .column-header .price-header {
   text-align: right;
-  min-width: 45px;
+  min-width: 50px;
 }
 
 .column-header .quantity-header,
 .column-header .addon-header {
   text-align: center;
-  width: 40px;
+  width: 45px;
 }
 
+/* ==================== 菜單項目 ==================== */
 .menu-item {
   display: grid;
-  grid-template-columns: 1fr 50px 40px 40px;
-  gap: 10px;
+  grid-template-columns: 1fr 55px 45px 45px;
+  gap: 8px;
   align-items: center;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 6px;
   transition: all 0.2s;
   position: relative;
@@ -404,6 +429,7 @@ h1 {
   background: #f0f0f0;
 }
 
+/* 項目主題色彩邊框 */
 .traditional-item {
   border-left: 3px solid #4ecdc4;
 }
@@ -416,10 +442,11 @@ h1 {
   border-left: 3px solid #9c27b0;
 }
 
+/* ==================== 項目內容元素 ==================== */
 .item-name {
   font-weight: 500;
   position: relative;
-  font-size: 1.2em;
+  font-size: 1.3em;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -429,99 +456,98 @@ h1 {
   color: #e63946;
   font-weight: bold;
   text-align: right;
-  min-width: 45px;
-  font-size: 1em;
+  min-width: 50px;
+  font-size: 1.1em;
 }
 
 .item-quantity {
-  width: 40px;
+  width: 45px;
   text-align: center;
-  font-size: 0.9em;
+  font-size: 1em;
 }
 
 .item-addon {
-  width: 40px;
+  width: 45px;
   text-align: center;
-  font-size: 0.9em;
+  font-size: 1em;
 }
 
 .hot-tag {
   background: #e63946;
   color: white;
-  font-size: 0.7em;
+  font-size: 0.75em;
   padding: 2px 6px;
   border-radius: 10px;
   font-weight: bold;
   white-space: nowrap;
 }
 
+/* ==================== 備註區域 ==================== */
 .notes {
   background: white;
-  padding: 15px;
+  padding: 5px;
   border-radius: 8px;
-  margin-top: 18px;
+  margin-top: 15px;
   border-left: 3px solid #6c757d;
-  font-size: 0.95em;
+  font-size: 1em;
 }
 
-.notes h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
+.notes-title {
+  font-weight: bold;
   color: #495057;
-  font-size: 1.2em;
+  font-size: 1.1em;
+  margin-bottom: 3px;
+  flex: 1;
 }
 
-.add-on-container {
+.notes-content {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 12px;
-  font-size: 1.2em;
+  gap: 15px;
+  margin-bottom: 5px;
+}
+
+.notes-column {
+  flex: 1;
+}
+
+/* ==================== 加點選項 ==================== */
+.add-on-container {
+  display: inline-block;
+  white-space: normal;
+  line-height: 1.6;
 }
 
 .add-on-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.9em;
+  display: inline;
+  margin-right: 10px;
+  font-size: 1em;
 }
 
-.add-on-item input {
-  margin: 0;
-  transform: scale(1.2);
+.addon-price {
+  color: #e63946;
+  font-weight: bold;
 }
 
-.notes textarea {
+/* ==================== 備註文本區域 ==================== */
+.remarks-textarea {
   width: 100%;
-  height: 45px;
+  height: 40px;
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 8px;
-  margin-top: 6px;
-  font-size: 0.9em;
-  resize: vertical;
+  font-size: 1em;
+  resize: none;
 }
 
-.notes p {
-  margin: 5px 0;
-  font-size: 0.9em;
-}
-
+/* ==================== 頁尾區域 ==================== */
 .footer {
   text-align: center;
-  margin-top: 25px;
+  margin-top: 10px;
   color: #6c757d;
-  font-size: 0.85em;
+  font-size: 0.9em;
 }
 
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-}
-
+/* ==================== 操作按鈕 ==================== */
 .print-button {
   padding: 10px 20px;
   background: #4caf50;
@@ -543,28 +569,17 @@ h1 {
   font-size: 16px;
 }
 
+/* ==================== 打印樣式 ==================== */
 @media print {
-  /* 確保背景色在打印時顯示 */
-  /* .section-title,
-  .traditional,
-  .fresh-fruit,
-  .new-items {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    color-adjust: exact !important;
-    background-color: inherit !important;
-  } */
-
-  /* 其他打印樣式保持不變 */
   .print-container {
     background: white;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .menu-container {
     box-shadow: none;
     border-radius: 0;
-    padding: 12px;
+    padding: 8px;
     margin: 0;
     max-width: 100%;
   }
@@ -575,6 +590,18 @@ h1 {
 
   .no-print {
     display: none;
+  }
+
+  .section-content {
+    gap: 6px;
+  }
+
+  .section-column {
+    padding: 8px;
+  }
+
+  .notes-content {
+    gap: 10px;
   }
 }
 </style>
