@@ -195,25 +195,7 @@ const goBack = () => {
 const fetchFromLocalStorage = () => {
   try {
     console.log('嘗試從 localStorage 獲取數據')
-    const storedData = localStorage.getItem('menuData')
-
-    if (storedData) {
-      const parsedData = JSON.parse(storedData)
-      console.log('成功從 localStorage 解析數據')
-
-      // 更新 store 數據
-      menuStore.shopData = parsedData.shopData || {}
-      menuStore.categories = parsedData.categories || []
-      menuStore.menuItems = parsedData.menuItems || []
-      menuStore.addOns = parsedData.addOns || []
-      menuStore.lastFetchTime = Date.now()
-
-      dataSource.value = 'localStorage'
-      return true
-    } else {
-      console.warn('localStorage 中沒有找到 menuData')
-      return false
-    }
+    return menuStore.loadFromLocalStorage()
   } catch (err) {
     console.error('解析 localStorage 數據時出錯:', err)
     return false

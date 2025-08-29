@@ -100,20 +100,88 @@ export const useMenuStore = defineStore('menu', {
         this.addOns = data.addOns || []
         this.lastFetchTime = Date.now()
 
+        // 保存到 localStorage
+        this.saveToLocalStorage()
+
         console.log('菜單資料獲取成功')
       } catch (error) {
         console.error('獲取菜單數據失敗:', error)
         this.error = error.message || '獲取菜單數據失敗'
+
         // 如果沒有任何資料，使用 mock 資料
         if (!this.hasData) {
-          const mockData = MenuService.getMockData()
-          this.shopData = mockData.shopData
-          this.categories = mockData.categories
-          this.menuItems = mockData.menuItems
-          this.addOns = mockData.addOns
+          // 檢查 MenuService 是否有 getMockData 方法
+          if (typeof MenuService.getMockData === 'function') {
+            const mockData = MenuService.getMockData()
+            this.shopData = mockData.shopData
+            this.categories = mockData.categories
+            this.menuItems = mockData.menuItems
+            this.addOns = mockData.addOns
+
+            // 保存 mock 數據到 localStorage
+            this.saveToLocalStorage()
+          } else {
+            console.error('MenuService 沒有 getMockData 方法')
+          }
         }
       } finally {
         this.loading = false
+      }
+    },
+
+    // 保存數據到 localStorage
+    saveToLocalStorage() {
+      try {
+        const dataToSave = {
+          shopData: this.shopData,
+          categories: this.categories,
+          menuItems: this.menuItems,
+          addOns: this.addOns,
+          lastFetchTime: this.lastFetchTime,
+        }
+
+        localStorage.setItem('menuData', JSON.stringify(dataToSave))
+        console.log('數據已保存到 localStorage')
+        return true
+      } catch (err) {
+        console.error('保存到 localStorage 失敗:', err)
+        return false
+      }
+    },
+
+    // 從 localStorage 讀取數據
+    loadFromLocalStorage() {
+      try {
+        const storedData = localStorage.getItem('menuData')
+
+        if (!storedData) {
+          console.log('localStorage 中沒有找到 menuData')
+          return false
+        }
+
+        const parsedData = JSON.parse(storedData)
+
+        // 檢查數據是否過期
+        if (parsedData.lastFetchTime) {
+          const now = Date.now()
+          if (now - parsedData.lastFetchTime > this.cacheTimeout) {
+            console.log('localStorage 中的數據已過期')
+            return false
+          }
+        }
+
+        // 更新 store 數據
+        this.shopData = parsedData.shopData || {}
+        this.categories = parsedData.categories || []
+        this.menuItems = parsedData.menuItems || []
+        this.addOns = parsedData.addOns || []
+        this.lastFetchTime = parsedData.lastFetchTime
+
+        console.log('從 localStorage 讀取數據成功')
+        return true
+      } catch (err) {
+        console.error('從 localStorage 讀取失敗:', err)
+        return false
       }
     },
 
